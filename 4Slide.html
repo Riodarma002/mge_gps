@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard Split 4</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      width: 100vw;
+      height: 100vh;
+      background: #111;
+      gap: 2px;
+    }
+
+    .frame-wrapper {
+      position: relative;
+      overflow: hidden;
+      background: #000;
+      border-radius: 12px; /* Seragam dengan lengkungan Streamlit */
+    }
+
+    /* Zoom controls */
+    .controls {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      z-index: 999;
+      display: flex;
+      gap: 4px;
+    }
+    .controls button {
+      width: 20px;
+      height: 20px;
+      font-size: 10px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px; /* Tombol membulat */
+      background: rgba(240, 240, 240, 0.6);
+      color: #fff;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .controls button:hover {
+      background: rgb(151, 151, 151);
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 12px; /* Seragam dengan lengkungan Streamlit */
+      transform-origin: top left;
+      transition: transform 0.2s;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Frame 1: Kiri Atas -->
+  <div class="frame-wrapper" id="wrap1">
+    <div class="controls">
+      <button onclick="zoomIn('wrap1')">+</button>
+      <button onclick="zoomOut('wrap1')">−</button>
+      <button onclick="zoomReset('wrap1')">↺</button>
+    </div>
+    <iframe id="frame1" src="https://appuksidashboard-f6792pb29s9bzs97lujcg6.streamlit.app/?embed=true" allowfullscreen></iframe>
+  </div>
+
+  <!-- Frame 2: Kanan Atas -->
+  <div class="frame-wrapper" id="wrap2">
+    <div class="controls">
+      <button onclick="zoomIn('wrap2')">+</button>
+      <button onclick="zoomOut('wrap2')">−</button>
+      <button onclick="zoomReset('wrap2')">↺</button>
+    </div>
+    <iframe id="frame2" src="https://weather-forecast-mge.vercel.app/" allowfullscreen></iframe>
+  </div>
+
+  <!-- Frame 3: Kiri Bawah -->
+  <div class="frame-wrapper" id="wrap3">
+    <div class="controls">
+      <button onclick="zoomIn('wrap3')">+</button>
+      <button onclick="zoomOut('wrap3')">−</button>
+      <button onclick="zoomReset('wrap3')">↺</button>
+    </div>
+    <iframe id="frame3" src="https://idletimedashboardgit-xbfpevkk5cjaxqsmcw8gwg.streamlit.app/?embed=true" allowfullscreen></iframe>
+  </div>
+
+  <!-- Frame 4: Kanan Bawah -->
+  <div class="frame-wrapper" id="wrap4">
+    <div class="controls">
+      <button onclick="zoomIn('wrap4')">+</button>
+      <button onclick="zoomOut('wrap4')">−</button>
+      <button onclick="zoomReset('wrap4')">↺</button>
+    </div>
+    <iframe id="frame4" src="https://eyes.ptdigital.co.id/" allowfullscreen></iframe>
+  </div>
+
+  <script>
+    const scales = { wrap1: 1, wrap2: 1, wrap3: 1, wrap4: 1 };
+    const STEP = 0.1;
+    const MIN = 0.3;
+    const MAX = 2.0;
+
+    function applyZoom(wrapperId) {
+      const wrapper = document.getElementById(wrapperId);
+      const iframe = wrapper.querySelector('iframe');
+      const scale = scales[wrapperId];
+
+      // Scale iframe dan sesuaikan ukurannya agar tidak terpotong
+      iframe.style.transform = `scale(${scale})`;
+      iframe.style.width = (100 / scale) + '%';
+      iframe.style.height = (100 / scale) + '%';
+    }
+
+    function zoomIn(id) {
+      scales[id] = Math.min(MAX, +(scales[id] + STEP).toFixed(2));
+      applyZoom(id);
+    }
+
+    function zoomOut(id) {
+      scales[id] = Math.max(MIN, +(scales[id] - STEP).toFixed(2));
+      applyZoom(id);
+    }
+
+    function zoomReset(id) {
+      scales[id] = 1;
+      applyZoom(id);
+    }
+  </script>
+
+</body>
+</html>

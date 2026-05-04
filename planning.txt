@@ -1,0 +1,7 @@
+planniing web gis
+
+1. buatkan saya planning untuk membuat web gis dengan leaflet berdasarkan source @link locator sebagai unit gps yang saya bungkus dengan leaflet
+2. tujuannya adalah untuk memantau unit dengan peta tile maps yang sudah saya sediakan dan akan dipasang di leaflet dan google maps untuk layer kedua. ini hanya untuk view saja belum memasukan fungsi lain.
+3. base react untuk UI 
+4. tolong tambahkan juga fitur untuk memfilter unit berdasarkan statusnya (online, offline, dll) 
+5. tambahkan ide anda dan periksa link locator. 
