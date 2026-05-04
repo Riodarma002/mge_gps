@@ -1,4 +1,8 @@
 {
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "installCommand": "npm install",
+  "framework": "vite",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
@@ -7,12 +11,6 @@
       "source": "/company/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=86400" }
-      ]
-    },
-    {
-      "source": "/tiles/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=604800" }
       ]
     }
   ]
