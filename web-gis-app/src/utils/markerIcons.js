@@ -26,22 +26,18 @@ export function createUnitIcon(unit) {
     </div>
   ` : '';
 
-  // Label kotak putih di BAWAH icon
+  // Label teks saja dengan outline/border putih di BAWAH icon
   const textHtml = `
     <div style="
       position: absolute;
-      top: 44px;
+      top: 40px;
       left: 50%;
       transform: translateX(-50%);
       color: #1a1a2e;
-      background-color: rgba(255, 255, 255, 0.95);
-      padding: 2px 7px;
-      border-radius: 4px;
-      border: 1px solid rgba(0, 0, 0, 0.15);
-      box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.35);
+      text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0px 0px 4px #fff;
       font-family: 'Inter', 'Roboto', Arial, sans-serif;
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
       white-space: nowrap;
       pointer-events: none;
       z-index: 1000;
