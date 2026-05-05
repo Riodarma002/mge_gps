@@ -3,14 +3,19 @@ import { getUnitIconUrl } from '../api/wialonApi'
 
 /**
  * Create custom Leaflet divIcon
- * - Unit icon size: 40x40 (larger)
- * - Label: white background box ABOVE the icon
- * - Font color: dark navy (not red)
+ * - Unit icon size: 40x40
+ * - Label: white box di BAWAH icon
+ * - Nama dipersingkat: "MGE-GHT-711" → "GHT 711"
  */
 export function createUnitIcon(unit) {
   const iconUrl = getUnitIconUrl(unit.id) || '';
   const isMoving = unit.status === 'online' && unit.speed > 2;
   const course = unit.course || 0;
+
+  // Persingkat nama: "MGE-GHT-711" → "GHT 711"
+  const shortName = unit.name
+    .replace(/^[A-Z]+-/i, '')  // hapus prefix pertama, contoh: "MGE-"
+    .replace(/-/g, ' ')         // ganti sisa tanda "-" jadi spasi
 
   // Course arrow (green direction indicator, shown only if moving)
   const arrowHtml = isMoving ? `
@@ -21,11 +26,11 @@ export function createUnitIcon(unit) {
     </div>
   ` : '';
 
-  // Label box ABOVE the icon — dark text, white pill background
+  // Label kotak putih di BAWAH icon
   const textHtml = `
     <div style="
       position: absolute;
-      bottom: 44px;
+      top: 44px;
       left: 50%;
       transform: translateX(-50%);
       color: #1a1a2e;
@@ -41,7 +46,7 @@ export function createUnitIcon(unit) {
       pointer-events: none;
       z-index: 1000;
     ">
-      ${unit.name}
+      ${shortName}
     </div>
   `;
 
