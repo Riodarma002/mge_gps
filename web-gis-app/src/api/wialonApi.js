@@ -147,9 +147,6 @@ export function clearSession() {
  */
 export function getUnitIconUrl(unitId) {
   if (!sessionId) return ''
-  const base = IS_DEV ? '/wialon-api' : '/api/proxy?endpoint='
-  if (IS_DEV) {
-    return `${base}/avl_item_image/${unitId}/32/1.png?sid=${sessionId}`
-  }
-  return `/api/proxy?endpoint=avl_item_image/${unitId}/32/1.png&sid=${sessionId}`
+  // Gambar unit bisa langsung dari Wialon — img tag tidak terblokir CORS
+  return `https://hst-api.wialon.eu/avl_item_image/${unitId}/32/1.png?sid=${sessionId}`
 }
