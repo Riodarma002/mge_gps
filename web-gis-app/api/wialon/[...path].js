@@ -29,9 +29,10 @@ export default async function handler(req, res) {
     return res.status(200).end()
   }
 
-  // Bangun URL tujuan: ambil bagian setelah /api/wialon
-  // req.url contoh: /wialon/ajax.html?svc=...
-  const upstreamUrl = `https://hst-api.wialon.eu${req.url}`
+  // Strip prefix /api/wialon dari req.url, teruskan sisanya ke Wialon
+  // Contoh: req.url = /api/wialon/wialon/ajax.html → /wialon/ajax.html
+  const stripped = req.url.replace(/^\/api\/wialon/, '') || '/'
+  const upstreamUrl = `https://hst-api.wialon.eu${stripped}`
 
   try {
     const rawBody = req.method !== 'GET' ? await getRawBody(req) : undefined
