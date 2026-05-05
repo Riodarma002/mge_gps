@@ -1,54 +1,56 @@
-// Vercel Serverless Function: Proxy ke Wialon API
-// File ini menggantikan fungsi Vite proxy server saat di-deploy ke Vercel.
-// Route: /api/wialon => https://hst-api.wialon.eu
-
-export default async function handler(req, res) {
-  // Ambil path setelah /api/wialon
-  const { path: pathParam } = req.query
-  const pathStr = Array.isArray(pathParam) ? pathParam.join('/') : (pathParam || '')
-
-  const targetUrl = `https://hst-api.wialon.eu/${pathStr}`
-
-  // Teruskan query string (selain 'path') ke upstream
-  const upstreamQuery = new URLSearchParams()
-  for (const [key, val] of Object.entries(req.query)) {
-    if (key !== 'path') {
-      upstreamQuery.set(key, val)
-    }
-  }
-  const queryStr = upstreamQuery.toString()
-  const fullUrl = queryStr ? `${targetUrl}?${queryStr}` : targetUrl
-
-  try {
-    // Teruskan body jika ada (POST request)
-    const upstreamOptions = {
-      method: req.method || 'GET',
-      headers: {
-        'Content-Type': req.headers['content-type'] || 'application/x-www-form-urlencoded',
-      },
-    }
-
-    if (req.method === 'POST' && req.body) {
-      upstreamOptions.body = typeof req.body === 'string'
-        ? req.body
-        : new URLSearchParams(req.body).toString()
-    }
-
-    const upstream = await fetch(fullUrl, upstreamOptions)
-    const data = await upstream.text()
-
-    res.setHeader('Access-Control-Allow-Origin', '*')
-    res.setHeader('Content-Type', 'application/json')
-    res.status(upstream.status).send(data)
-  } catch (err) {
-    res.status(500).json({ error: 'Proxy error', message: err.message })
-  }
-}
+// Vercel Serverless Proxy untuk Wialon API
+// Menangani semua request ke /api/wialon/* dan meneruskannya ke hst-api.wialon.eu
+// Contoh: POST /api/wialon/wialon/ajax.html → POST https://hst-api.wialon.eu/wialon/ajax.html
 
 export const config = {
   api: {
-    bodyParser: {
-      sizeLimit: '1mb',
-    },
+    bodyParser: false, // Nonaktifkan body parser otomatis agar raw body bisa diforward
   },
+}
+
+// Helper: baca raw body dari request stream
+function getRawBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = []
+    req.on('data', (chunk) => chunks.push(chunk))
+    req.on('end', () => resolve(Buffer.concat(chunks).toString()))
+    req.on('error', reject)
+  })
+}
+
+export default async function handler(req, res) {
+  // Izinkan CORS dari semua origin (karena ini proxy internal kita)
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+
+  // Handle preflight (browser CORS check)
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end()
+  }
+
+  // Bangun URL tujuan: ambil bagian setelah /api/wialon
+  // req.url contoh: /wialon/ajax.html?svc=...
+  const upstreamUrl = `https://hst-api.wialon.eu${req.url}`
+
+  try {
+    const rawBody = req.method !== 'GET' ? await getRawBody(req) : undefined
+
+    const upstreamResponse = await fetch(upstreamUrl, {
+      method: req.method,
+      headers: {
+        'Content-Type': req.headers['content-type'] || 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0',
+      },
+      body: rawBody || undefined,
+    })
+
+    const responseText = await upstreamResponse.text()
+
+    res.setHeader('Content-Type', 'application/json')
+    res.status(upstreamResponse.status).send(responseText)
+  } catch (err) {
+    console.error('Proxy error:', err)
+    res.status(500).json({ error: 'Proxy error', message: err.message })
+  }
 }
