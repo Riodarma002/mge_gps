@@ -17,6 +17,16 @@ export function createUnitIcon(unit) {
     .replace(/^[A-Z]+-/i, '')  // hapus prefix pertama, contoh: "MGE-"
     .replace(/-/g, ' ')         // ganti sisa tanda "-" jadi spasi
 
+  // Tentukan warna font berdasarkan jenis unit (GHT, GMT, EX)
+  let textColor = '#1a1a2e'; // default hitam navy
+  if (shortName.includes('GHT')) {
+    textColor = '#0055ff'; // Biru terang
+  } else if (shortName.includes('GMT')) {
+    textColor = '#e60000'; // Merah terang
+  } else if (shortName.includes('EX')) {
+    textColor = '#009900'; // Hijau tua/terang
+  }
+
   // Course arrow (green direction indicator, shown only if moving)
   const arrowHtml = isMoving ? `
     <div style="position: absolute; top: -5px; left: -5px; width: 14px; height: 14px; transform: rotate(${course}deg); transform-origin: center;">
@@ -33,7 +43,7 @@ export function createUnitIcon(unit) {
       top: 40px;
       left: 50%;
       transform: translateX(-50%);
-      color: #1a1a2e;
+      color: ${textColor};
       text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0px 0px 4px #fff;
       font-family: 'Inter', 'Roboto', Arial, sans-serif;
       font-size: 11px;
