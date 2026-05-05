@@ -12,9 +12,13 @@ export function createUnitIcon(unit) {
   const isMoving = unit.status === 'online' && unit.speed > 2;
   const course = unit.course || 0;
 
+  // Ekstrak prefix vendor (contoh: "MGE" dari "MGE-GHT-711")
+  const prefixMatch = unit.name.match(/^([A-Z]+)-/i)
+  const vendorPrefix = prefixMatch ? prefixMatch[1].toUpperCase() : null
+
   // Persingkat nama: "MGE-GHT-711" → "GHT 711"
   const shortName = unit.name
-    .replace(/^[A-Z]+-/i, '')  // hapus prefix pertama, contoh: "MGE-"
+    .replace(/^[A-Z]+-/i, '')  // hapus prefix pertama
     .replace(/-/g, ' ')         // ganti sisa tanda "-" jadi spasi
 
   // Tentukan warna font berdasarkan jenis unit (GHT, GMT, EX)
@@ -36,23 +40,35 @@ export function createUnitIcon(unit) {
     </div>
   ` : '';
 
-  // Label teks saja dengan outline/border putih di BAWAH icon
+  // HTML Logo Vendor (akan disembunyikan otomatis jika file /company/PREFIX.png tidak ditemukan)
+  const logoHtml = vendorPrefix 
+    ? `<img src="/company/${vendorPrefix}.png" style="height: 14px; width: auto; margin-right: 4px; object-fit: contain;" onerror="this.style.display='none'" />` 
+    : '';
+
+  // Label teks saja dengan outline/border putih di BAWAH icon + Logo Vendor
   const textHtml = `
     <div style="
       position: absolute;
       top: 40px;
       left: 50%;
       transform: translateX(-50%);
-      color: ${textColor};
-      text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0px 0px 4px #fff;
-      font-family: 'Inter', 'Roboto', Arial, sans-serif;
-      font-size: 11px;
-      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       white-space: nowrap;
       pointer-events: none;
       z-index: 1000;
     ">
-      ${shortName}
+      ${logoHtml}
+      <span style="
+        color: ${textColor};
+        text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0px 0px 4px #fff;
+        font-family: 'Inter', 'Roboto', Arial, sans-serif;
+        font-size: 11px;
+        font-weight: 800;
+      ">
+        ${shortName}
+      </span>
     </div>
   `;
 
