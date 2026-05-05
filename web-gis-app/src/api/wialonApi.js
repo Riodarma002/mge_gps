@@ -1,11 +1,11 @@
 // Wialon Remote API Integration
 // Platform: PrimeEyes / PTDigital (hst-api.wialon.eu)
 
-const WIALON_API = import.meta.env.VITE_WIALON_API_URL || 'https://hst-api.wialon.eu'
 const TOKEN = import.meta.env.VITE_WIALON_TOKEN
 
-// Use proxy in dev, direct API in prod
-const BASE = import.meta.env.DEV ? '/wialon-api' : WIALON_API
+// Dev: gunakan Vite proxy (/wialon-api)
+// Prod (Vercel): gunakan Serverless Function proxy (/api/wialon)
+const BASE = import.meta.env.DEV ? '/wialon-api' : '/api/wialon'
 
 let sessionId = null
 
