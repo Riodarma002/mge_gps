@@ -4,8 +4,8 @@
 const TOKEN = import.meta.env.VITE_WIALON_TOKEN
 
 // Dev: gunakan Vite proxy (/wialon-api)
-// Prod (Vercel): gunakan Serverless Function proxy (/api/wialon)
-const BASE = import.meta.env.DEV ? '/wialon-api' : '/api/wialon'
+// Prod (Vercel): gunakan endpoint proxy tunggal (/api/proxy)
+const IS_DEV = import.meta.env.DEV
 
 let sessionId = null
 
@@ -13,8 +13,17 @@ let sessionId = null
  * Call Wialon Remote API
  */
 async function wialonCall(svc, params = {}) {
-  const url = `${BASE}/wialon/ajax.html`
-  const body = new URLSearchParams({
+  let url, body
+
+  if (IS_DEV) {
+    // Development: pakai Vite proxy
+    url = '/wialon-api/wialon/ajax.html'
+  } else {
+    // Production (Vercel): pakai serverless proxy
+    url = '/api/proxy?endpoint=wialon/ajax.html'
+  }
+
+  body = new URLSearchParams({
     svc,
     params: JSON.stringify(params),
     ...(sessionId ? { sid: sessionId } : {}),
@@ -33,7 +42,6 @@ async function wialonCall(svc, params = {}) {
 
 /**
  * Login with Locator Token
- * Returns session id (eid)
  */
 export async function wialonLogin() {
   const data = await wialonCall('token/login', {
@@ -46,18 +54,16 @@ export async function wialonLogin() {
 
 /**
  * Fetch all GPS units with position data
- * AVL_UNIT fields:
- *   1 - id, 2 - name, 4 - phone, 8 - desc
- *   groups: 256 last msg, 512 pos
  */
 export async function fetchUnits() {
   if (!sessionId) await wialonLogin()
 
-  // PING avl_evts (tanpa await): Wialon menggunakan long-polling di endpoint ini.
-  // Menyematkan await akan menge-blok UI karena request ini sering menunggu puluhan detik jika tidak ada event.
-  fetch(`${BASE}/avl_evts?sid=${sessionId}`).catch(e => {
-    console.warn('ping avl_evts failed', e)
-  })
+  // PING avl_evts (non-blocking)
+  const evtsUrl = IS_DEV
+    ? `/wialon-api/avl_evts?sid=${sessionId}`
+    : `/api/proxy?endpoint=avl_evts&sid=${sessionId}`
+
+  fetch(evtsUrl).catch(e => console.warn('ping avl_evts failed', e))
 
   const data = await wialonCall('core/search_items', {
     spec: {
@@ -67,7 +73,7 @@ export async function fetchUnits() {
       sortType: 'sys_name',
     },
     force: 1,
-    flags: 0x00000001 | 0x00000100 | 0x00000200 | 0x00000400, // basic + lastmsg + pos + sensors
+    flags: 0x00000001 | 0x00000100 | 0x00000200 | 0x00000400,
     from: 0,
     to: 0,
   })
@@ -107,11 +113,11 @@ function parseUnit(raw) {
     description: raw.ds || '',
     lat,
     lng,
-    speed,       // km/h
-    course,      // degrees
+    speed,
+    course,
     altitude,
     timestamp,
-    status,      // 'online' | 'idle' | 'offline' | 'no_signal'
+    status,
     hasPosition: lat !== null && lng !== null,
   }
 }
@@ -126,10 +132,10 @@ function deriveStatus(pos, lastMsg) {
   const msgTime = pos?.t || lastMsg?.t || 0
   const ageMinutes = (nowSeconds - msgTime) / 60
 
-  if (ageMinutes > 60) return 'offline'      // no data > 1 jam
-  if (ageMinutes > 15) return 'offline'      // no data > 15 menit = offline
-  if ((pos?.s || 0) > 2) return 'online'    // bergerak (speed > 2 km/h)
-  return 'idle'                               // ada koneksi tapi diam
+  if (ageMinutes > 60) return 'offline'
+  if (ageMinutes > 15) return 'offline'
+  if ((pos?.s || 0) > 2) return 'online'
+  return 'idle'
 }
 
 export function clearSession() {
@@ -140,7 +146,10 @@ export function clearSession() {
  * Get internal Wialon unit image URL
  */
 export function getUnitIconUrl(unitId) {
-  if (!sessionId) return '';
-  // Menggunakan URL bawaan Wialon untuk mendapatkan icon
-  return `${BASE}/avl_item_image/${unitId}/32/1.png?sid=${sessionId}`;
+  if (!sessionId) return ''
+  const base = IS_DEV ? '/wialon-api' : '/api/proxy?endpoint='
+  if (IS_DEV) {
+    return `${base}/avl_item_image/${unitId}/32/1.png?sid=${sessionId}`
+  }
+  return `/api/proxy?endpoint=avl_item_image/${unitId}/32/1.png&sid=${sessionId}`
 }
