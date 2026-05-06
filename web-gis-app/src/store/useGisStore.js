@@ -2,27 +2,51 @@ import { create } from 'zustand'
 import { DEFAULT_LINK_LAYERS } from '../config/mapConfig'
 
 // ─── Helpers LocalStorage ───────────────────────────────────────────────────
-const LS_ACTIVE_OVERLAYS = 'gis_activeOverlays'
-const LS_ACTIVE_LAYER    = 'gis_activeLayer'
+const LS_ACTIVE_OVERLAYS  = 'gis_activeOverlays'
+const LS_ACTIVE_LAYER     = 'gis_activeLayer'
+const LS_KNOWN_DEFAULTS   = 'gis_knownDefaults' // tracking default IDs yang sudah pernah terlihat
 
 function loadActiveOverlays() {
+  // ID semua default layer yang seharusnya auto-ON
+  const autoOnIds = DEFAULT_LINK_LAYERS.filter(l => l.autoOn).map(l => l.id)
+
   try {
     const raw = localStorage.getItem(LS_ACTIVE_OVERLAYS)
-    if (raw === null) return []
-    const parsed = JSON.parse(raw)
-    // Migration: jika tersimpan array kosong [] dari bug sesi lama, hapus → auto-ON saat load
-    if (Array.isArray(parsed) && parsed.length === 0) {
-      localStorage.removeItem(LS_ACTIVE_OVERLAYS)
-      return []
+
+    if (raw === null) {
+      // ── Fresh install / deploy baru ──────────────────────────────────────
+      // Aktifkan semua default layer yang autoOn
+      return [...autoOnIds]
     }
-    return parsed
+
+    const parsed = JSON.parse(raw)
+    if (!Array.isArray(parsed)) return [...autoOnIds]
+
+    // ── Kunjungan berikutnya ─────────────────────────────────────────────
+    // Cek apakah ada default layer BARU yang belum pernah diketahui sebelumnya.
+    // Jika ada → otomatis aktifkan (kode baru ditambahkan ke config).
+    let knownDefaults = new Set()
+    try {
+      const kr = localStorage.getItem(LS_KNOWN_DEFAULTS)
+      if (kr) knownDefaults = new Set(JSON.parse(kr))
+    } catch { /* ignore */ }
+
+    const brandNewDefaults = autoOnIds.filter(id => !knownDefaults.has(id))
+
+    // Merge: state lama + default baru yang belum pernah ada
+    return [...new Set([...parsed, ...brandNewDefaults])]
+
   } catch {
-    return []
+    return [...autoOnIds]
   }
 }
 
 function saveActiveOverlays(arr) {
   localStorage.setItem(LS_ACTIVE_OVERLAYS, JSON.stringify(arr))
+  // Simpan semua default IDs yang sudah diketahui saat ini
+  // agar deteksi "default baru" di loadActiveOverlays bekerja benar
+  const allDefaultIds = DEFAULT_LINK_LAYERS.map(l => l.id)
+  localStorage.setItem(LS_KNOWN_DEFAULTS, JSON.stringify(allDefaultIds))
 }
 
 // ─── Store ──────────────────────────────────────────────────────────────────

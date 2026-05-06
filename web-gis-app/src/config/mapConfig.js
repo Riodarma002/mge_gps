@@ -58,36 +58,92 @@ export const TILE_LAYERS = {
   },
 }
 
+// Helper untuk buat URL Mapbox tile dari ID tileset
+const mbUrl = (tilesetId) =>
+  `https://api.mapbox.com/v4/${tilesetId}/{z}/{x}/{y}@2x.png?access_token=${import.meta.env.VITE_MAPBOX_TOKEN || ''}`
+
 /**
- * DEFAULT TILE OVERLAY LINKS — Hardcoded, selalu ada di semua deployment.
- * Tambahkan link tiles permanen Anda di sini.
- * Layer ini TIDAK bergantung localStorage — aman untuk deploy ke Vercel.
+ * DEFAULT TILE OVERLAY LAYERS — Hardcoded, selalu ada di semua deployment.
+ * Tambah/ubah entry di sini untuk mengatur tiles bawaan.
  *
- * Format setiap entry:
- * {
- *   id: 'id_unik',           // ID unik, jangan diubah setelah deploy
- *   name: 'Nama Tampilan',   // Nama yang tampil di panel
- *   url: 'https://...',      // URL tile XYZ: .../{z}/{x}/{y}.png
- *   isDefault: true,         // Tandai sebagai bawaan (tidak bisa dihapus user)
- *   minZoom: 12,             // (opsional) zoom minimum
- *   maxZoom: 20,             // (opsional) zoom maksimum
- *   bounds: [[s,w],[n,e]],   // (opsional) batas geografis tiles
- * }
+ * isDefault: true  → Layer ini tidak bisa dihapus user dari UI.
+ * autoOn: true     → Layer ini otomatis aktif saat pertama kali dibuka
+ *                    (termasuk setelah fresh deploy ke Vercel).
+ *
+ * Untuk menambah tile baru:
+ * { id: 'unik_id', name: 'Nama Peta', url: mbUrl('username.tilesetid'), isDefault: true, autoOn: true, isCustomLink: true }
  */
 export const DEFAULT_LINK_LAYERS = [
   {
-    id: 'mapbox_drone_cpp33_south',
-    name: 'Drone: CPP33 South',
-    url: `https://api.mapbox.com/v4/hendrapoernama.5v7j1wzv/{z}/{x}/{y}@2x.png?access_token=${import.meta.env.VITE_MAPBOX_TOKEN || ''}`,
+    id: 'default_jetty',
+    name: 'Jetty',
+    url: mbUrl('hendrapoernama.1nvtkn1g'),
     isDefault: true,
+    autoOn: true,
     isCustomLink: true,
   },
-  // ── Tambahkan tile default lainnya di sini ──────────────────────────────
-  // {
-  //   id: 'drone_area_utara',
-  //   name: 'Drone: Area Utara',
-  //   url: `https://api.mapbox.com/v4/USERNAME.MAP_ID/{z}/{x}/{y}@2x.png?access_token=${import.meta.env.VITE_MAPBOX_TOKEN || ''}`,
-  //   isDefault: true,
-  //   isCustomLink: true,
-  // },
+  {
+    id: 'default_km12',
+    name: 'Km12',
+    url: mbUrl('hendrapoernama.b9knhl5l'),
+    isDefault: true,
+    autoOn: true,
+    isCustomLink: true,
+  },
+  {
+    id: 'default_jalan_utara_selatan',
+    name: 'Jalan Utara - Selatan',
+    url: mbUrl('hendrapoernama.0cdq15q3'),
+    isDefault: true,
+    autoOn: true,
+    isCustomLink: true,
+  },
+  {
+    id: 'default_jetty_stockrom',
+    name: 'Jetty - Stockrom',
+    url: mbUrl('hendrapoernama.7bd4z4nv'),
+    isDefault: true,
+    autoOn: true,
+    isCustomLink: true,
+  },
+  {
+    id: 'default_pit_all_jo_utara',
+    name: 'PIT All JO Utara',
+    url: mbUrl('hendrapoernama.9aarafhz'),
+    isDefault: true,
+    autoOn: true,
+    isCustomLink: true,
+  },
+  {
+    id: 'default_cpp33',
+    name: 'CPP33',
+    url: mbUrl('hendrapoernama.2hc3u43l'),
+    isDefault: true,
+    autoOn: true,
+    isCustomLink: true,
+  },
+  {
+    id: 'default_mawar_shortcut',
+    name: 'Mawar Shortcut',
+    url: mbUrl('hendrapoernama.ayi0jg2c'),
+    isDefault: true,
+    autoOn: true,
+    isCustomLink: true,
+  },
+  {
+    id: 'default_pit_selatan',
+    name: 'PIT Selatan',
+    url: mbUrl('hendrapoernama.41yavqkb'),
+    isDefault: true,
+    autoOn: true,
+    isCustomLink: true,
+  },
+  {
+    id: 'default_pit_utara_jo',
+    name: 'PIT Utara JO',
+    url: mbUrl('hendrapoernama.djeqb8ym'),
+    isDefault: true,
+    autoOn: true,
+    isCustomLink: true,
+  },
 ]
