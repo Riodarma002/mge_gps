@@ -57,3 +57,37 @@ export const TILE_LAYERS = {
     tileSize: 512,
   },
 }
+
+/**
+ * DEFAULT TILE OVERLAY LINKS — Hardcoded, selalu ada di semua deployment.
+ * Tambahkan link tiles permanen Anda di sini.
+ * Layer ini TIDAK bergantung localStorage — aman untuk deploy ke Vercel.
+ *
+ * Format setiap entry:
+ * {
+ *   id: 'id_unik',           // ID unik, jangan diubah setelah deploy
+ *   name: 'Nama Tampilan',   // Nama yang tampil di panel
+ *   url: 'https://...',      // URL tile XYZ: .../{z}/{x}/{y}.png
+ *   isDefault: true,         // Tandai sebagai bawaan (tidak bisa dihapus user)
+ *   minZoom: 12,             // (opsional) zoom minimum
+ *   maxZoom: 20,             // (opsional) zoom maksimum
+ *   bounds: [[s,w],[n,e]],   // (opsional) batas geografis tiles
+ * }
+ */
+export const DEFAULT_LINK_LAYERS = [
+  {
+    id: 'mapbox_drone_cpp33_south',
+    name: 'Drone: CPP33 South',
+    url: `https://api.mapbox.com/v4/hendrapoernama.5v7j1wzv/{z}/{x}/{y}@2x.png?access_token=${import.meta.env.VITE_MAPBOX_TOKEN || ''}`,
+    isDefault: true,
+    isCustomLink: true,
+  },
+  // ── Tambahkan tile default lainnya di sini ──────────────────────────────
+  // {
+  //   id: 'drone_area_utara',
+  //   name: 'Drone: Area Utara',
+  //   url: `https://api.mapbox.com/v4/USERNAME.MAP_ID/{z}/{x}/{y}@2x.png?access_token=${import.meta.env.VITE_MAPBOX_TOKEN || ''}`,
+  //   isDefault: true,
+  //   isCustomLink: true,
+  // },
+]

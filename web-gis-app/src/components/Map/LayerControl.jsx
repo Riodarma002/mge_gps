@@ -173,8 +173,9 @@ export default function LayerControl() {
                 )}
                 <button
                   onClick={() => { if (window.confirm(`Hapus "${layer.name}"?`)) removeLinkLayer(layer.id) }}
-                  style={{ padding: '0 8px', background: 'var(--bg-card)', color: '#f85149', border: '1px solid var(--border-light)', borderLeft: 'none', borderTopRightRadius: '6px', borderBottomRightRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                  title="Hapus layer ini"
+                  style={{ padding: '0 8px', background: 'var(--bg-card)', color: '#f85149', border: '1px solid var(--border-light)', borderLeft: 'none', borderTopRightRadius: '6px', borderBottomRightRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', visibility: layer.isDefault ? 'hidden' : 'visible' }}
+                  title={layer.isDefault ? 'Layer bawaan tidak dapat dihapus' : 'Hapus layer ini'}
+                  disabled={layer.isDefault}
                 >✖</button>
               </div>
             )
